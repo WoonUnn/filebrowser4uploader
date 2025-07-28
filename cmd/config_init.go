@@ -81,6 +81,26 @@ override the options.`,
 			return err
 		}
 
+		uploadingMethod, err := getString(flags, "uploading.method")
+		if err != nil {
+			return err
+		}
+
+		uploadingLog, err := getBool(flags, "uploading.content.log")
+		if err != nil {
+			return err
+		}
+
+		uploadingImage, err := getBool(flags, "uploading.content.image")
+		if err != nil {
+			return err
+		}
+
+		uploadingVideo, err := getBool(flags, "uploading.content.video")
+		if err != nil {
+			return err
+		}
+
 		s := &settings.Settings{
 			Key:                   key,
 			Signup:                signup,
@@ -95,6 +115,14 @@ override the options.`,
 				DisableUsedPercentage: brandingDisableUsedPercentage,
 				Theme:                 brandingTheme,
 				Files:                 brandingFiles,
+			},
+			Uploading: settings.Uploading{
+				Method: uploadingMethod,
+				Content: settings.UploadingContent{
+					Log:   uploadingLog,
+					Image: uploadingImage,
+					Video: uploadingVideo,
+				},
 			},
 		}
 

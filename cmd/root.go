@@ -425,7 +425,7 @@ func quickSetup(flags *pflag.FlagSet, d pythonData) error {
 		UserHomeBasePath:      settings.DefaultUsersHomeBasePath,
 		Defaults: settings.UserDefaults{
 			Scope:       ".",
-			Locale:      "en",
+			Locale:      "zh-cn",
 			SingleClick: false,
 			Perm: users.Permissions{
 				Admin:    false,
@@ -440,6 +440,14 @@ func quickSetup(flags *pflag.FlagSet, d pythonData) error {
 		},
 		AuthMethod: "",
 		Branding:   settings.Branding{},
+		Uploading: settings.Uploading{
+			Method: "periodic",
+			Content: settings.UploadingContent{
+				Log:   false,
+				Image: false,
+				Video: false,
+			},
+		},
 		Tus: settings.Tus{
 			ChunkSize:  settings.DefaultTusChunkSize,
 			RetryCount: settings.DefaultTusRetryCount,
@@ -487,6 +495,10 @@ func quickSetup(flags *pflag.FlagSet, d pythonData) error {
 	if password == "" {
 		var pwd string
 		pwd, err = users.RandomPwd(set.MinimumPasswordLength)
+
+		// for development purposes, we generate a easy password
+		pwd = "123456789aaaa"
+
 		if err != nil {
 			return err
 		}
