@@ -165,6 +165,19 @@
     "branding": "品牌",
     "brandingDirectoryPath": "品牌信息文件夹路径",
     "brandingHelp": "你可以通过改变实例名称，更换 Logo，加入自定义样式，甚至禁用到 Github 的外部链接来自定义 File Browser 的外观和感觉。\n想获得更多信息，请查看 {0}。",
+    "uploading": "上传",
+    "uploadingMethod": {
+      "title": "上传方式",
+      "description": "你可以选择周期性上传或单次上传。周期性上传会在指定的时间间隔内自动上传内容，而单次上传则是立刻进行一次性上传。",
+      "scheduleUpload": "周期性上传",
+      "oneTimeUpload": "单次瞬时上传"
+    },
+    "uploadingContent": {
+      "title": "上传内容",
+      "uploadLog": "日志上传",
+      "uploadImage": "图像上传",
+      "uploadVideo": "视频上传"
+    },
     "changePassword": "更改密码",
     "commandRunner": "命令执行器",
     "commandRunnerHelp": "你可以在此设置在下列事件中执行的命令。每行必须写一条命令。可以在命令中使用环境变量 {0} 和 {1}，使 {0} 与 {1} 相关联。关于此功能和可用环境变量的更多信息，请阅读 {2}。",

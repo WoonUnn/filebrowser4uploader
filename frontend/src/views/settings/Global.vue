@@ -39,11 +39,14 @@
             />
           </p>
 
+          <!--  不需要规则
           <h3>{{ t("settings.rules") }}</h3>
           <p class="small">{{ t("settings.globalRules") }}</p>
           <rules v-model:rules="settings.rules" />
+           -->
 
-          <div v-if="enableExec">
+          <!-- 不需要Shell执行命令 
+           <div v-if="enableExec">
             <h3>{{ t("settings.executeOnShell") }}</h3>
             <p class="small">{{ t("settings.executeOnShellDescription") }}</p>
             <input
@@ -52,9 +55,49 @@
               placeholder="bash -c, cmd /c, ..."
               v-model="shellValue"
             />
-          </div>
+          </div> -->
 
-          <h3>{{ t("settings.branding") }}</h3>
+          <h3>{{ t("settings.uploading") }}</h3>
+
+          <p>
+            <UploadingMethod
+              class="input input--block"
+              v-model:method="settings.uploading.method"
+              id="upload-method"
+            ></UploadingMethod>
+          </p>
+
+          <h3>{{ t("settings.uploadingContent.title") }}</h3>
+
+          <p>
+            <input
+              type="checkbox"
+              v-model="settings.uploading.content.log"
+              id="upload-log"
+            />
+            {{ t("settings.uploadingContent.uploadLog") }}
+          </p>
+
+          <p>
+            <input
+              type="checkbox"
+              v-model="settings.uploading.content.image"
+              id="upload-image"
+            />
+            {{ t("settings.uploadingContent.uploadImage") }}
+          </p>
+
+          <p>
+            <input
+              type="checkbox"
+              v-model="settings.uploading.content.video"
+              id="upload-video"
+            />
+            {{ t("settings.uploadingContent.uploadVideo") }}
+          </p>
+
+          <!-- 不需要品牌设置
+           <h3>{{ t("settings.branding") }}</h3>
 
           <i18n-t
             keypath="settings.brandingHelp"
@@ -117,7 +160,7 @@
               v-model="settings.branding.files"
               id="branding-files"
             />
-          </p>
+          </p> -->
 
           <h3>{{ t("settings.tusUploads") }}</h3>
 
@@ -186,7 +229,7 @@
       </form>
     </div>
 
-    <div class="column">
+    <!-- <div class="column">
       <form v-if="enableExec" class="card" @submit.prevent="save">
         <div class="card-title">
           <h2>{{ t("settings.commandRunner") }}</h2>
@@ -236,7 +279,7 @@
           />
         </div>
       </form>
-    </div>
+    </div> -->
   </div>
 </template>
 
@@ -245,6 +288,7 @@ import { settings as api } from "@/api";
 import { StatusError } from "@/api/utils";
 import Rules from "@/components/settings/Rules.vue";
 import Themes from "@/components/settings/Themes.vue";
+import UploadingMethod from "@/components/settings/UploadingMethod.vue";
 import UserForm from "@/components/settings/UserForm.vue";
 import { useLayoutStore } from "@/stores/layout";
 import { enableExec } from "@/utils/constants";

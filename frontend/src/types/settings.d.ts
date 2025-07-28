@@ -6,6 +6,7 @@ interface ISettings {
   defaults: SettingsDefaults;
   rules: any[];
   branding: SettingsBranding;
+  uploading: SettingUploading;
   tus: SettingsTus;
   shell: string[];
   commands: SettingsCommand;
@@ -32,6 +33,15 @@ interface SettingsBranding {
   color: string;
 }
 
+interface SettingUploading {
+  method: UploadingMethod;
+  content: {
+    log: boolean;
+    image: boolean;
+    video: boolean;
+  }
+}
+
 interface SettingsTus {
   chunkSize: number;
   retryCount: number;
@@ -56,3 +66,5 @@ interface SettingsUnit {
   GB: number;
   TB: number;
 }
+
+type UploadingMethod = "periodic" | "onetime";

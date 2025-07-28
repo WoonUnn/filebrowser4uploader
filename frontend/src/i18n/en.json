@@ -165,6 +165,19 @@
     "branding": "Branding",
     "brandingDirectoryPath": "Branding directory path",
     "brandingHelp": "You can customize how your File Browser instance looks and feels by changing its name, replacing the logo, adding custom styles and even disable external links to GitHub.\nFor more information about custom branding, please check out the {0}.",
+    "uploading": "Uploading",
+    "uploadingMethod": {
+      "title": "Uploading Method",
+      "description": "You can choose between periodic uploads or one-time uploads. Periodic uploads will automatically upload content at specified intervals, while one-time uploads will perform an immediate upload.",
+      "scheduleUpload": "Periodic Upload",
+      "oneTimeUpload": "One-Time Upload"
+    },
+    "uploadingContent": {
+      "title": "Upload Content",
+      "uploadLog": "Log Upload",
+      "uploadImage": "Image Upload",
+      "uploadVideo": "Video Upload"
+    },
     "changePassword": "Change Password",
     "commandRunner": "Command runner",
     "commandRunnerHelp": "Here you can set commands that are executed in the named events. You must write one per line. The environment variables {0} and {1} will be available, being {0} relative to {1}. For more information about this feature and the available environment variables, please read the {2}.",
