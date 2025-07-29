@@ -6,6 +6,7 @@ import (
 
 	"github.com/filebrowser/filebrowser/v2/rules"
 	"github.com/filebrowser/filebrowser/v2/settings"
+	"github.com/pebbe/zmq4"
 )
 
 type settingsData struct {
@@ -20,6 +21,12 @@ type settingsData struct {
 	Tus                   settings.Tus          `json:"tus"`
 	Shell                 []string              `json:"shell"`
 	Commands              map[string][]string   `json:"commands"`
+}
+
+type androidUploadingContent struct {
+	EnableLogUpload bool `json:"enableLogUpload"`
+	EnableImageUpload bool `json:"enableImageUpload"`
+	EnableVideoUpload bool `json:"enableVideoUpload"`
 }
 
 var settingsGetHandler = withAdmin(func(w http.ResponseWriter, r *http.Request, d *data) (int, error) {
@@ -59,6 +66,34 @@ var settingsPutHandler = withAdmin(func(_ http.ResponseWriter, r *http.Request, 
 	d.settings.Shell = req.Shell
 	d.settings.Commands = req.Commands
 
+	if err = updateConfigContent(&d.settings.Uploading.Content); err != nil { // 更新参数
+		return http.StatusInternalServerError, err
+	}
+
 	err = d.store.Settings.Save(d.settings)
 	return errToStatus(err), err
 })
+
+func updateConfigContent(newCfg *settings.UploadingContent) error {
+	publisher, _ := zmq4.NewSocket(zmq4.PUB)
+	defer publisher.Close()
+	publisher.Bind("tcp://*:5555") // Adjust the address as needed
+
+	androidCfg := &androidUploadingContent{
+		EnableLogUpload:   newCfg.Log,
+		EnableImageUpload: newCfg.Image,
+		EnableVideoUpload: newCfg.Video,
+	}
+
+	msg, err := json.Marshal(androidCfg)
+	if err != nil {
+		return err
+	}
+
+	_, err = publisher.Send("config_content "+string(msg), 0)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

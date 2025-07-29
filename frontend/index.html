@@ -8,7 +8,7 @@
       content="width=device-width, initial-scale=1, user-scalable=no"
     />
 
-    <title>File Browser</title>
+    <title>文件管理</title>
 
     <link rel="icon" type="image/svg+xml" href="/img/icons/favicon.svg" />
     <link rel="shortcut icon" href="/img/icons/favicon.ico" />
@@ -51,8 +51,8 @@
         return `${window.FileBrowser.StaticURL}/${url.replace(/^\/+/, "")}`;
       };
       var dynamicManifest = {
-        name: window.FileBrowser.Name || "File Browser",
-        short_name: window.FileBrowser.Name || "File Browser",
+        name: window.FileBrowser.Name || "文件管理",
+        short_name: window.FileBrowser.Name || "文件管理",
         icons: [
           {
             src: window.__prependStaticUrl(

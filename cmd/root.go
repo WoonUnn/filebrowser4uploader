@@ -60,12 +60,12 @@ func init() {
 }
 
 func addServerFlags(flags *pflag.FlagSet) {
-	flags.StringP("address", "a", "127.0.0.1", "address to listen on")
+	flags.StringP("address", "a", "0.0.0.0", "address to listen on")
 	flags.StringP("log", "l", "stdout", "log output")
 	flags.StringP("port", "p", "8080", "port to listen on")
 	flags.StringP("cert", "t", "", "tls certificate")
 	flags.StringP("key", "k", "", "tls key")
-	flags.StringP("root", "r", ".", "root to prepend to relative paths")
+	flags.StringP("root", "r", "statistics", "root to prepend to relative paths")
 	flags.String("socket", "", "socket to listen to (cannot be used with address, port, cert nor key flags)")
 	flags.Uint32("socket-perm", 0666, "unix socket file permissions")
 	flags.StringP("baseurl", "b", "", "base url")
@@ -159,6 +159,14 @@ user created with the credentials from options "username" and "password".`,
 			return err
 		}
 		server.Root = root
+
+		if _, err := os.Stat(server.Root); err != nil { // 自动创建statistics目录
+			if os.IsNotExist(err) {
+				if err := os.MkdirAll(server.Root, 0777); err != nil { //nolint:govet
+					return fmt.Errorf("can't make directory %s: %w", server.Root, err)
+				}
+			}
+		}
 
 		adr := server.Address + ":" + server.Port
 

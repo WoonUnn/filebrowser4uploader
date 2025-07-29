@@ -1,9 +1,9 @@
 <template>
   <div class="t-container">
     <span>{{ message }}</span>
-    <button v-if="isReport" class="action" @click.stop="clicked">
+    <!-- <button v-if="isReport" class="action" @click.stop="clicked">
       {{ reportText }}
-    </button>
+    </button> -->
   </div>
 </template>
 
