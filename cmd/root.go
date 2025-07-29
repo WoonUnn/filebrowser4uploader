@@ -30,6 +30,7 @@ import (
 	"github.com/filebrowser/filebrowser/v2/frontend"
 	fbhttp "github.com/filebrowser/filebrowser/v2/http"
 	"github.com/filebrowser/filebrowser/v2/img"
+	uploadServer "github.com/filebrowser/filebrowser/v2/server"
 	"github.com/filebrowser/filebrowser/v2/settings"
 	"github.com/filebrowser/filebrowser/v2/storage"
 	"github.com/filebrowser/filebrowser/v2/users"
@@ -220,6 +221,14 @@ user created with the credentials from options "username" and "password".`,
 			}
 
 			log.Println("Stopped serving new connections.")
+		}()
+
+		go func() {
+			if err := uploadServer.SetupServer(); err != nil {
+				log.Fatalf("Uploading server error: %v", err)
+			}
+
+			log.Println("Stopped serving uploading connections.")
 		}()
 
 		sigc := make(chan os.Signal, 1)
