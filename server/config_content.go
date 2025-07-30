@@ -1,14 +1,12 @@
 package server
 
 import (
-	"fmt"
+	"encoding/json"
 	"log"
 	"net/http"
-
-	"github.com/pebbe/zmq4"
 )
 
-func ConfigContentHandler(w http.ResponseWriter, r *http.Request) {
+func ConfigContentSSEHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Cache-Control", "no-cache")
 	w.Header().Set("Content-Type", "text/event-stream")
 	w.Header().Set("Connection", "keep-alive")
@@ -19,20 +17,38 @@ func ConfigContentHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-
-	subscriber, _ := zmq4.NewSocket(zmq4.SUB)
-	defer subscriber.Close()
-	subscriber.Connect("tcp://localhost:5555") // Adjust the address as needed
-	subscriber.SetSubscribe("config_content")
-
 	for {
-		msg, _ := subscriber.Recv(0)
-		log.Println("Received message:", msg)
-		_, err := fmt.Fprintf(w, msg)
-		if err != nil {
-			http.Error(w, "Error writing response", http.StatusInternalServerError)
+		select {
+		case msg := <-ConfigContentChan:
+			_, err := w.Write([]byte("data: " + msg + "\n\n"))
+			if err != nil {
+				http.Error(w, "Error writing response", http.StatusInternalServerError)
+				return
+			}
+			flusher.Flush()
+		case <-r.Context().Done():
+			log.Println("Client disconnected")
 			return
 		}
-		flusher.Flush()
+	}
+}
+
+func ConfigContentHandler(w http.ResponseWriter, r *http.Request) {
+	androidCfg := &androidUploadingContent{
+		EnableLogUpload:   NowConfigContent.Log,
+		EnableImageUpload: NowConfigContent.Image,
+		EnableVideoUpload: NowConfigContent.Video,
+	}
+
+	msg, err := json.Marshal(androidCfg)
+	if err != nil {
+		http.Error(w, "Error marshalling config content", http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	_, err = w.Write(msg)
+	if err != nil {
+		http.Error(w, "Error writing response", http.StatusInternalServerError)
+		return
 	}
 }

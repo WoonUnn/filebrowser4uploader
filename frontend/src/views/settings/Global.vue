@@ -57,7 +57,7 @@
             />
           </div> -->
 
-          <h3>{{ t("settings.uploading") }}</h3>
+          <!-- <h3>{{ t("settings.uploading") }}</h3>
 
           <p>
             <UploadingMethod
@@ -65,7 +65,7 @@
               v-model:method="settings.uploading.method"
               id="upload-method"
             ></UploadingMethod>
-          </p>
+          </p> -->
 
           <h3>{{ t("settings.uploadingContent.title") }}</h3>
 

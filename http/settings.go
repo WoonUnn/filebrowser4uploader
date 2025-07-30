@@ -5,8 +5,8 @@ import (
 	"net/http"
 
 	"github.com/filebrowser/filebrowser/v2/rules"
+	"github.com/filebrowser/filebrowser/v2/server"
 	"github.com/filebrowser/filebrowser/v2/settings"
-	"github.com/pebbe/zmq4"
 )
 
 type settingsData struct {
@@ -44,6 +44,8 @@ var settingsGetHandler = withAdmin(func(w http.ResponseWriter, r *http.Request, 
 		Commands:              d.settings.Commands,
 	}
 
+	server.NowConfigContent = d.settings.Uploading.Content
+
 	return renderJSON(w, r, data)
 })
 
@@ -75,10 +77,6 @@ var settingsPutHandler = withAdmin(func(_ http.ResponseWriter, r *http.Request, 
 })
 
 func updateConfigContent(newCfg *settings.UploadingContent) error {
-	publisher, _ := zmq4.NewSocket(zmq4.PUB)
-	defer publisher.Close()
-	publisher.Bind("tcp://*:5555") // Adjust the address as needed
-
 	androidCfg := &androidUploadingContent{
 		EnableLogUpload:   newCfg.Log,
 		EnableImageUpload: newCfg.Image,
@@ -90,10 +88,8 @@ func updateConfigContent(newCfg *settings.UploadingContent) error {
 		return err
 	}
 
-	_, err = publisher.Send("config_content "+string(msg), 0)
-	if err != nil {
-		return err
-	}
+	server.NowConfigContent = *newCfg
+	server.ConfigContentChan <- string(msg)
 
 	return nil
 }
