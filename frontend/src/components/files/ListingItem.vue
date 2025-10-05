@@ -46,6 +46,7 @@
 import { useAuthStore } from "@/stores/auth";
 import { useFileStore } from "@/stores/file";
 import { useLayoutStore } from "@/stores/layout";
+import { useFiletreeStore } from "@/stores/filetree";
 
 import { enableThumbs } from "@/utils/constants";
 import { filesize } from "@/utils";
@@ -54,6 +55,8 @@ import { files as api } from "@/api";
 import * as upload from "@/utils/upload";
 import { computed, inject, ref } from "vue";
 import { useRouter } from "vue-router";
+
+const rspText = `{"data":{"children":[{"children":[{"children":[{"name":"com.google.android.gms"}],"name":"media"}],"name":"Android"},{"children":[{"name":".thumbnails"}],"name":"Music"},{"name":"Podcasts"},{"name":"Ringtones"},{"name":"Alarms"},{"name":"Notifications"},{"children":[{"name":".thumbnails"}],"name":"Pictures"},{"children":[{"name":".thumbnails"}],"name":"Movies"},{"name":"Download"},{"name":"DCIM"},{"name":"Documents"},{"name":"Audiobooks"},{"name":"Recordings"}]}}`;
 
 const touches = ref<number>(0);
 
@@ -81,6 +84,7 @@ const props = defineProps<{
 const authStore = useAuthStore();
 const fileStore = useFileStore();
 const layoutStore = useLayoutStore();
+const filetreeStore = useFiletreeStore();
 
 const singleClick = computed(
   () => !props.readOnly && authStore.user?.singleClick
@@ -252,8 +256,11 @@ const click = (event: Event | KeyboardEvent) => {
     open();
   }
 
+  filetreeStore.updateTreeData(rspText);
+
   if (fileStore.selected.indexOf(props.index) !== -1) {
     fileStore.removeSelected(props.index);
+    filetreeStore.clearTreeData();
     return;
   }
 

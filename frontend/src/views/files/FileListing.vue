@@ -128,7 +128,8 @@
       </h2>
     </div>
     <template v-else>
-      <div
+      <!-- 无文件时显示 -->
+      <div 
         v-if="
           (fileStore.req?.numDirs ?? 0) + (fileStore.req?.numFiles ?? 0) == 0
         "
@@ -153,121 +154,134 @@
           multiple
         />
       </div>
-      <div
-        v-else
-        id="listing"
-        ref="listing"
-        class="file-icons"
-        :class="authStore.user?.viewMode ?? ''"
-      >
-        <div>
-          <div class="item header">
-            <div>
-              <p
-                :class="{ active: nameSorted }"
-                class="name"
-                role="button"
-                tabindex="0"
-                @click="sort('name')"
-                :title="t('files.sortByName')"
-                :aria-label="t('files.sortByName')"
-              >
-                <span>{{ t("files.name") }}</span>
-                <i class="material-icons">{{ nameIcon }}</i>
-              </p>
+      <!-- 有文件时显示 -->
+      <div v-else id="listing-wrapper">
+        <div
+          id="listing"
+          ref="listing"
+          class="file-icons"
+          :class="authStore.user?.viewMode ?? ''"
+        >
+          <div>
+            <div class="item header">
+              <div>
+                <p
+                  :class="{ active: nameSorted }"
+                  class="name"
+                  role="button"
+                  tabindex="0"
+                  @click="sort('name')"
+                  :title="t('files.sortByName')"
+                  :aria-label="t('files.sortByName')"
+                >
+                  <span>{{ t("files.name") }}</span>
+                  <i class="material-icons">{{ nameIcon }}</i>
+                </p>
 
-              <p
-                :class="{ active: sizeSorted }"
-                class="size"
-                role="button"
-                tabindex="0"
-                @click="sort('size')"
-                :title="t('files.sortBySize')"
-                :aria-label="t('files.sortBySize')"
-              >
-                <span>{{ t("files.size") }}</span>
-                <i class="material-icons">{{ sizeIcon }}</i>
-              </p>
-              <p
-                :class="{ active: modifiedSorted }"
-                class="modified"
-                role="button"
-                tabindex="0"
-                @click="sort('modified')"
-                :title="t('files.sortByLastModified')"
-                :aria-label="t('files.sortByLastModified')"
-              >
-                <span>{{ t("files.lastModified") }}</span>
-                <i class="material-icons">{{ modifiedIcon }}</i>
-              </p>
+                <p
+                  :class="{ active: sizeSorted }"
+                  class="size"
+                  role="button"
+                  tabindex="0"
+                  @click="sort('size')"
+                  :title="t('files.sortBySize')"
+                  :aria-label="t('files.sortBySize')"
+                >
+                  <span>{{ t("files.size") }}</span>
+                  <i class="material-icons">{{ sizeIcon }}</i>
+                </p>
+                <p
+                  :class="{ active: modifiedSorted }"
+                  class="modified"
+                  role="button"
+                  tabindex="0"
+                  @click="sort('modified')"
+                  :title="t('files.sortByLastModified')"
+                  :aria-label="t('files.sortByLastModified')"
+                >
+                  <span>{{ t("files.lastModified") }}</span>
+                  <i class="material-icons">{{ modifiedIcon }}</i>
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <h2 v-if="fileStore.req?.numDirs ?? false">
+            {{ t("files.folders") }}
+          </h2>
+          <div v-if="fileStore.req?.numDirs ?? false">
+            <item
+              v-for="item in dirs"
+              :key="base64(item.name)"
+              v-bind:index="item.index"
+              v-bind:name="item.name"
+              v-bind:isDir="item.isDir"
+              v-bind:url="item.url"
+              v-bind:modified="item.modified"
+              v-bind:type="item.type"
+              v-bind:size="item.size"
+              v-bind:path="item.path"
+            >
+            </item>
+          </div>
+
+          <h2 v-if="fileStore.req?.numFiles ?? false">{{ t("files.files") }}</h2>
+          <div v-if="fileStore.req?.numFiles ?? false">
+            <item
+              v-for="item in files"
+              :key="base64(item.name)"
+              v-bind:index="item.index"
+              v-bind:name="item.name"
+              v-bind:isDir="item.isDir"
+              v-bind:url="item.url"
+              v-bind:modified="item.modified"
+              v-bind:type="item.type"
+              v-bind:size="item.size"
+              v-bind:path="item.path"
+            >
+            </item>
+          </div>
+
+          <input
+            style="display: none"
+            type="file"
+            id="upload-input"
+            @change="uploadInput($event)"
+            multiple
+          />
+          <input
+            style="display: none"
+            type="file"
+            id="upload-folder-input"
+            @change="uploadInput($event)"
+            webkitdirectory
+            multiple
+          />
+
+          <div :class="{ active: fileStore.multiple }" id="multiple-selection">
+            <p>{{ t("files.multipleSelectionEnabled") }}</p>
+            <div
+              @click="() => (fileStore.multiple = false)"
+              tabindex="0"
+              role="button"
+              :title="t('buttons.clear')"
+              :aria-label="t('buttons.clear')"
+              class="action"
+            >
+              <i class="material-icons">clear</i>
             </div>
           </div>
         </div>
 
-        <h2 v-if="fileStore.req?.numDirs ?? false">
-          {{ t("files.folders") }}
-        </h2>
-        <div v-if="fileStore.req?.numDirs ?? false">
-          <item
-            v-for="item in dirs"
-            :key="base64(item.name)"
-            v-bind:index="item.index"
-            v-bind:name="item.name"
-            v-bind:isDir="item.isDir"
-            v-bind:url="item.url"
-            v-bind:modified="item.modified"
-            v-bind:type="item.type"
-            v-bind:size="item.size"
-            v-bind:path="item.path"
-          >
-          </item>
+        <div class="sup-line" v-show="showFileTree"></div>
+
+        <div class="filetree-title" v-show="showFileTree">
+          该遥控器目录树：
         </div>
-
-        <h2 v-if="fileStore.req?.numFiles ?? false">{{ t("files.files") }}</h2>
-        <div v-if="fileStore.req?.numFiles ?? false">
-          <item
-            v-for="item in files"
-            :key="base64(item.name)"
-            v-bind:index="item.index"
-            v-bind:name="item.name"
-            v-bind:isDir="item.isDir"
-            v-bind:url="item.url"
-            v-bind:modified="item.modified"
-            v-bind:type="item.type"
-            v-bind:size="item.size"
-            v-bind:path="item.path"
-          >
-          </item>
-        </div>
-
-        <input
-          style="display: none"
-          type="file"
-          id="upload-input"
-          @change="uploadInput($event)"
-          multiple
-        />
-        <input
-          style="display: none"
-          type="file"
-          id="upload-folder-input"
-          @change="uploadInput($event)"
-          webkitdirectory
-          multiple
-        />
-
-        <div :class="{ active: fileStore.multiple }" id="multiple-selection">
-          <p>{{ t("files.multipleSelectionEnabled") }}</p>
-          <div
-            @click="() => (fileStore.multiple = false)"
-            tabindex="0"
-            role="button"
-            :title="t('buttons.clear')"
-            :aria-label="t('buttons.clear')"
-            class="action"
-          >
-            <i class="material-icons">clear</i>
-          </div>
+        
+        <!-- 显示文件目录树 -->
+        <div id="file-tree" v-show="showFileTree">
+          <file-tree :tree-data-string="filetreeStore.treeDataString" />
         </div>
       </div>
     </template>
@@ -279,6 +293,7 @@ import { useAuthStore } from "@/stores/auth";
 import { useClipboardStore } from "@/stores/clipboard";
 import { useFileStore } from "@/stores/file";
 import { useLayoutStore } from "@/stores/layout";
+import { useFiletreeStore } from "@/stores/filetree";
 
 import { users, files as api } from "@/api";
 import { enableExec } from "@/utils/constants";
@@ -291,6 +306,7 @@ import HeaderBar from "@/components/header/HeaderBar.vue";
 import Action from "@/components/header/Action.vue";
 import Search from "@/components/Search.vue";
 import Item from "@/components/files/ListingItem.vue";
+import FileTree from "@/components/files/FileTree.vue";
 import {
   computed,
   inject,
@@ -316,6 +332,7 @@ const clipboardStore = useClipboardStore();
 const authStore = useAuthStore();
 const fileStore = useFileStore();
 const layoutStore = useLayoutStore();
+const filetreeStore = useFiletreeStore();
 
 const { req } = storeToRefs(fileStore);
 
@@ -324,6 +341,10 @@ const route = useRoute();
 const { t } = useI18n();
 
 const listing = ref<HTMLElement | null>(null);
+
+const showFileTree = computed(() => {
+  return filetreeStore.treeDataString && filetreeStore.treeDataString.length > 0;
+});
 
 const nameSorted = computed(() =>
   fileStore.req ? fileStore.req.sorting.by === "name" : false
@@ -954,3 +975,21 @@ const fillWindow = (fit = false) => {
   showLimit.value = showQuantity > totalItems ? totalItems : showQuantity;
 };
 </script>
+
+<style lang="less" scoped>
+.sup-line {
+  height: 1.5px;
+  background: #fff;  
+  margin-top: 6px;
+}
+.filetree-title {
+  font-size: 16px;
+  font-weight: 500;
+  color: #413a3a;
+  margin: 16px 0 8px 8px;
+  background: #f5f5f5;
+  width: fit-content;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+</style>
